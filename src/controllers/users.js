@@ -1,61 +1,99 @@
 import users from "../models/users.js";
 
-export const login=async(req,res)=>{
-    try{
 
-        const {clerk_id}=req.body;
-        const user=await users.findOne({clerk_user_id : clerk_id})
-        if(!user){
-            return res.json({message:"user not found"})
-        }
+// 🔐 LOGIN
+export const login = async (req, res) => {
+  try {
+    const { clerkId } = req.body;
 
-        return res.json({
-            role : user.role,
-            id : user?._id,
-            name : user?.name
-        })
-
-
-
-    }
-    catch(err){
-        return res.json({message:err.message})
-
+    // 🔎 Validation
+    if (!clerkId) {
+      return res.status(400).json({
+        success: false,
+        message: "clerkId is required",
+      });
     }
 
-}
+    // 🔎 Find user
+    const user = await users.findOne({ clerk_id: clerkId });
 
-
-export const register=async(req,res)=>{
-    try{
-
-        const {clerk_id,role,name}=req.body;
-        const user=await users.findOne({email})
-        if(user){
-            return res.json({message:"user already found"})
-        }
-
-       const newUser= await users.create({
-            clerk_id,
-            role,
-            name
-
-
-        })
-        return res.json({
-            role : newUser.role,
-            id : newUser?._id,
-            name : newUser?.name
-        })
-
-
-
-    }
-    catch(err){
-        return res.json({message:err.message})
-
-    
-
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found. Please register first.",
+      });
     }
 
-}
+    // ✅ Success
+    return res.status(200).json({
+      success: true,
+      data: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+      },
+    });
+
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+
+// 📝 REGISTER
+export const register = async (req, res) => {
+  try {
+    const { clerkId, role, name, email } = req.body;
+
+    // 🔎 Validation
+    if (!clerkId || !role || !name || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields (clerkId, role, name, email) are required",
+      });
+    }
+
+    // 🔎 Check existing user
+    const existingUser = await users.findOne({ email });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "User already exists",
+        data: existingUser,
+      });
+    }
+
+    // ✅ Create user
+    const newUser = await users.create({
+      clerk_id: clerkId,
+      role,
+      name,
+      email,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      data: {
+        id: newUser._id,
+        name: newUser.name,
+        role: newUser.role,
+      },
+    });
+
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
