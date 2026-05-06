@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  clerk_user_id: { type: String ,allowNull:true},
+  clerk_id: { type: String ,allowNull:true},
   name: { type: String, required: true },
   role: {
     type: String,
