@@ -60,7 +60,7 @@ export const register = async (req, res) => {
     }
 
     // 🔎 Check existing user
-    const existingUser = await users.findOne({ email });
+    const existingUser = await users.findOne({clerk_id : clerkId });
 
     if (existingUser) {
       return res.status(409).json({
