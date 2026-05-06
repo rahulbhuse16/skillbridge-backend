@@ -1,5 +1,5 @@
-const attendance = require("../models/Attendance");
-const sessions = require("../models/sessions");
+const attendance = require("../models/attendance.js");
+const sessions = require("../models/sessions.js");
 
 
 

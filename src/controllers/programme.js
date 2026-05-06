@@ -1,6 +1,6 @@
-const attendance = require("../models/Attendance");
-const batch = require("../models/Batch");
-const sessions = require("../models/sessions");
+const attendance = require("../models/attendance.js");
+const batch = require("../models/batch.js");
+const sessions = require("../models/sessions.js");
 
 
 exports.sessionAttendance = async (req, res) => {

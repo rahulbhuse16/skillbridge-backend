@@ -1,4 +1,4 @@
-const Attendance = require("../models/Attendance");
+const Attendance = require("../models/attendance");
 
 exports.markAttendance = async (req, res) => {
   if (req.user.role !== "student") {
