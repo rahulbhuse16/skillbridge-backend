@@ -4,7 +4,7 @@ export const login=async(req,res)=>{
     try{
 
         const {clerk_id}=req.body;
-        const user=await users.findOne({clerk_id})
+        const user=await users.findOne({clerk_user_id : clerk_id})
         if(!user){
             return res.json({message:"user not found"})
         }
