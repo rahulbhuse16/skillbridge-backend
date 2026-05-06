@@ -9,4 +9,5 @@ const batchSchema = new mongoose.Schema({
   },
 }, { timestamps: { createdAt: "created_at", updatedAt: false } });
 
-module.exports = mongoose.model("Batch", batchSchema);
+const Batch = mongoose.models.Batch || mongoose.model("Batch", batchSchema);
+module.exports = Batch;

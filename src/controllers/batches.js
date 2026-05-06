@@ -1,6 +1,6 @@
 const batchStudents = require("../models/batch-students.js");
 const batchTrainers = require("../models/batch-trainers.js");
-const Batch = require("../models/Batch.js");
+const Batch = require("../models/batch.js");
 
 
 exports.createBatch = async (req, res) => {
