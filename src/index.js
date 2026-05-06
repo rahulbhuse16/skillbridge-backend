@@ -5,16 +5,18 @@ import { batchRouter } from './routes/batches.js'
 import { sessionRouter } from './routes/sessions.js'
 import { managementRouter } from './routes/management.js'
 import { authRouter } from './routes/auth.js'
-const app = express()
-app.use(cors())
 
-app.use(batchRouter)
-app.use(sessionRouter)
-app.use(managementRouter)
-app.use(authRouter)
+const app = express()
+
+app.use(cors())
 app.use(express.json())
 
-app.listen(3000, async() => {
+app.use('/batches', batchRouter)
+app.use('/sessions', sessionRouter)
+app.use('/management', managementRouter)
+app.use('/auth', authRouter)
+
+app.listen(3000, async () => {
   console.log(`server is connected on port 3000`)
   await connectDB()
 })
