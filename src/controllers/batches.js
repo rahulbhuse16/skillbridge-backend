@@ -1,6 +1,6 @@
-const batch = require("../models/Batch.js");
 const batchStudents = require("../models/batch-students.js");
 const batchTrainers = require("../models/batch-trainers.js");
+const Batch = require("../models/Batch.js");
 
 
 exports.createBatch = async (req, res) => {
@@ -8,7 +8,7 @@ exports.createBatch = async (req, res) => {
     return res.status(403).json({ message: "Forbidden" });
   }
 
-  const batch = await batch.create({
+  const batch = await Batch.create({
     name: req.body.name,
     institution_id: req.user.institution_id,
   });
