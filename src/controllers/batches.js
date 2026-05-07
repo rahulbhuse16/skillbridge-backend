@@ -2,48 +2,96 @@ const batchStudents = require("../models/batch-students.js");
 const batchTrainers = require("../models/batch-trainers.js");
 const Batch = require("../models/batch.js");
 
-
 exports.createBatch = async (req, res) => {
-  if (!["trainer", "institution"].includes(req.user.role)) {
-    return res.status(403).json({ message: "Forbidden" });
-  }
+  try {
+    const { name, institution_id, trainer_id, role } = req.body;
 
-  const batch = await Batch.create({
-    name: req.body.name,
-    institution_id: req.user.institution_id,
-  });
+    if (!["trainer", "institution"].includes(role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
 
-  if (req.user.role === "trainer") {
-    await batchTrainers.create({
-      batch_id: batch._id,
-      trainer_id: req.user._id,
+    const batch = await Batch.create({
+      name,
+      institution_id,
+    });
+
+    if (role === "trainer") {
+      await batchTrainers.create({
+        batch_id: batch._id,
+        trainer_id,
+      });
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Batch created successfully",
+      data: batch,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create batch",
+      error: error.message,
     });
   }
-
-  res.json(batch);
 };
 
 exports.generateInvite = async (req, res) => {
-  if (req.user.role !== "trainer") {
-    return res.status(403).json({ message: "Forbidden" });
+  try {
+    const { role } = req.body;
+    const { id } = req.params;
+
+    if (role !== "trainer") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    const inviteToken = `${id}-${Date.now()}`;
+
+    return res.status(200).json({
+      success: true,
+      invite_link: `/batches/${id}/join?token=${inviteToken}`,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate invite link",
+      error: error.message,
+    });
   }
-
-  const inviteToken = `${req.params.id}-${Date.now()}`;
-
-  res.json({
-    invite_link: `/batches/${req.params.id}/join?token=${inviteToken}`,
-  });
 };
 
 exports.joinBatch = async (req, res) => {
-  if (req.user.role !== "student") {
-    return res.status(403).json({ message: "Forbidden" });
+  try {
+    const { student_id, role } = req.body;
+    const { id } = req.params;
+
+    if (role !== "student") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    await batchStudents.create({
+      batch_id: id,
+      student_id,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Joined batch successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to join batch",
+      error: error.message,
+    });
   }
-
-  await batchStudents.create({
-    batch_id: req.params.id,
-    student_id: req.user._id,
-  });
-
-  res.json({ message: "Joined batch" });
 };
