@@ -1,5 +1,9 @@
 const batchStudents = require("../models/batch-students.js");
 const batchTrainers = require("../models/batch-trainers.js");
+const Sessions = require("../models/sessions.js");
+const BatchStudents = require("../models/batch-students.js");
+const BatchTrainers = require("../models/batch-trainers.js");
+const Attendance = require("../models/attendance.js");
 const Batch = require("../models/batch.js");
 
 exports.createBatch = async (req, res) => {
@@ -119,6 +123,74 @@ exports.getBatches = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch batches",
+      error: error.message,
+    });
+  }
+};
+
+
+// controllers/trainer.js
+
+
+
+exports.getTrainerDashboard = async (req, res) => {
+  try {
+    const { trainer_id } = req.params;
+
+    // Trainer batches
+    const trainerBatches = await BatchTrainers.find({
+      trainer_id,
+    });
+
+    const batchIds = trainerBatches.map(
+      (item) => item.batch_id
+    );
+
+    // Sessions count
+    const sessions = await Sessions.find({
+      trainer_id,
+    }).sort({ createdAt: -1 });
+
+    // Students count
+    const students = await BatchStudents.find({
+      batch_id: { $in: batchIds },
+    });
+
+    // Attendance
+    const attendance = await Attendance.find({
+      session_id: {
+        $in: sessions.map((s) => s._id),
+      },
+    });
+
+    const presentCount = attendance.filter(
+      (a) => a.status === "present"
+    ).length;
+
+    const attendancePercentage =
+      attendance.length > 0
+        ? Math.round(
+            (presentCount / attendance.length) * 100
+          )
+        : 0;
+
+    const recentSessions = sessions.slice(0, 5);
+
+    return res.status(200).json({
+      success: true,
+
+      stats: {
+        total_sessions: sessions.length,
+        total_students: students.length,
+        attendance_percentage: attendancePercentage,
+      },
+
+      recent_sessions: recentSessions,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch dashboard data",
       error: error.message,
     });
   }
