@@ -98,14 +98,69 @@ exports.institutionSummary = async (req, res) => {
   }
 };
 
+const Attendance = require("../models/attendance");
+const User = require("../models/users");
+const Batch = require("../models/batch");
+
 exports.programmeSummary = async (req, res) => {
-  if (!["programme_manager", "monitoring_officer"].includes(req.user.role)) {
-    return res.status(403).json({ message: "Forbidden" });
+  try {
+    // Role check
+    if (
+      !["programme_manager", "monitoring_officer"].includes(
+        req.user.role
+      )
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    // Total institutions
+    const totalInstitutions = await User.countDocuments({
+      role: "institution",
+    });
+
+    // Total students
+    const totalStudents = await User.countDocuments({
+      role: "student",
+    });
+
+    // Total attendance records
+    const totalAttendance = await Attendance.countDocuments();
+
+    // Present attendance
+    const presentAttendance = await Attendance.countDocuments({
+      status: "present",
+    });
+
+    // Attendance %
+    const attendancePercentage =
+      totalAttendance > 0
+        ? Math.round(
+            (presentAttendance / totalAttendance) * 100
+          )
+        : 0;
+
+    // Total batches
+    const totalBatches = await Batch.countDocuments();
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        total_institutions: totalInstitutions,
+        total_students: totalStudents,
+        total_batches: totalBatches,
+        attendance_percentage: attendancePercentage,
+      },
+    });
+  } catch (error) {
+    console.error("Programme Summary Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
-
-  const totalAttendance = await attendance.countDocuments();
-
-  res.json({
-    total_attendance_records: totalAttendance,
-  });
 };
