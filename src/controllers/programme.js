@@ -105,16 +105,12 @@ const Batch = require("../models/batch");
 exports.programmeSummary = async (req, res) => {
   try {
     // Role check
-    if (
-      !["programme_manager", "monitoring_officer"].includes(
-        req.user.role
-      )
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: "Forbidden",
-      });
-    }
+     const id=req.params.id
+     const user=await users.findById(id)
+     if (user.role !== "manager") {
+      return res.status(403).json({ success: false, message: "Forbidden", });
+     }
+
 
     // Total institutions
     const totalInstitutions = await User.countDocuments({
