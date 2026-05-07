@@ -1,6 +1,7 @@
 const attendance = require("../models/attendance.js");
 const batch = require("../models/batch.js");
 const sessions = require("../models/sessions.js");
+const users = require("../models/users.js");
 
 
 exports.sessionAttendance = async (req, res) => {
@@ -34,15 +35,67 @@ exports.batchSummary = async (req, res) => {
 };
 
 exports.institutionSummary = async (req, res) => {
-  if (req.user.role !== "programme_manager") {
-    return res.status(403).json({ message: "Forbidden" });
+  try {
+    // Role check
+   
+
+    const institutionId = req.params.id;
+
+     const user=await users.findById(institutionId)
+
+
+
+
+     if (user.role !== "institution") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    // Get all batches of institution
+    const batches = await Batch.find({
+      institution_id: institutionId,
+    });
+
+    // Create response list with attendance %
+    const batchList = await Promise.all(
+      batches.map(async (item) => {
+        const totalAttendance = await attendance.countDocuments({
+          session_id: { $exists: true },
+        });
+
+        const presentAttendance = await attendance.countDocuments({
+          status: "present",
+        });
+
+        const attendancePercentage =
+          totalAttendance > 0
+            ? Math.round((presentAttendance / totalAttendance) * 100)
+            : 0;
+
+        return {
+          batch_id: item._id,
+          batch_name: item.name,
+          attendance_percentage: attendancePercentage,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      total_batches: batches.length,
+      batches: batchList,
+    });
+  } catch (error) {
+    console.error("Institution Summary Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
-
-  const batches = await batch.find({ institution_id: req.params.id });
-
-  res.json({
-    total_batches: batches.length,
-  });
 };
 
 exports.programmeSummary = async (req, res) => {
