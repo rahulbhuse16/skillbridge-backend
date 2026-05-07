@@ -54,7 +54,7 @@ exports.institutionSummary = async (req, res) => {
     }
 
     // Get all batches of institution
-    const batches = await Batch.find({
+    const batches = await batch.find({
       institution_id: institutionId,
     });
 
