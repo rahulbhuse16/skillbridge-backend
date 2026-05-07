@@ -98,11 +98,11 @@ exports.joinBatch = async (req, res) => {
 
 
 exports.getBatches = async (req, res) => {
-  const id=req.params.id
   try {
-    const batches = await Batch.find({}, {
+    const { id } = req.params;
+
+    const batches = await Batch.find({
       institution_id: id,
-     
     });
 
     const formattedBatches = batches.map((batch) => ({
