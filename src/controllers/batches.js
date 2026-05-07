@@ -95,3 +95,31 @@ exports.joinBatch = async (req, res) => {
     });
   }
 };
+
+
+exports.getBatches = async (req, res) => {
+  const id=req.params.id
+  try {
+    const batches = await Batch.find({}, {
+      institution_id: id,
+     
+    });
+
+    const formattedBatches = batches.map((batch) => ({
+      id: batch._id,
+      name: batch.name,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      total: formattedBatches.length,
+      data: formattedBatches,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch batches",
+      error: error.message,
+    });
+  }
+};
