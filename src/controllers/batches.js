@@ -46,7 +46,7 @@ exports.createBatch = async (req, res) => {
 exports.generateInvite = async (req, res) => {
   try {
     const { role } = req.body;
-    const { id } = req.params;
+    const { id } = req.body;
 
     if (role !== "trainer") {
       return res.status(403).json({
