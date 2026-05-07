@@ -59,7 +59,7 @@ exports.generateInvite = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      invite_link: `https://skillbridge-xva3.onrender.com/batches/${id}/join?token=${inviteToken}`,
+      invite_link: `https://skillbridge-xva3.onrender.com/batches/${id}/join`,
     });
   } catch (error) {
     return res.status(500).json({

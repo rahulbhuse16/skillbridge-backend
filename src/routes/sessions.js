@@ -7,7 +7,7 @@ sessionRouter.post('/sessions',createSession)
 sessionRouter.get('/sessions/:id/attendance',getSessionAttendance)
 sessionRouter.post('/attendance/mark',markAttendance)
 sessionRouter.get(
-  "/:student_id/dashboard",
+  "/student/:student_id/dashboard",
   getStudentDashboard
 );
 
