@@ -72,8 +72,7 @@ exports.generateInvite = async (req, res) => {
 
 exports.joinBatch = async (req, res) => {
   try {
-    const { student_id, role } = req.body;
-    const { id } = req.params;
+    const { student_id, role,id } = req.body;
 
     if (role !== "student") {
       return res.status(403).json({
