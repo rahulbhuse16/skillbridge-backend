@@ -5,6 +5,7 @@ const BatchStudents = require("../models/batch-students.js");
 const BatchTrainers = require("../models/batch-trainers.js");
 const Attendance = require("../models/attendance.js");
 const Batch = require("../models/batch.js");
+const Notifications = require("../models/notifications.js");
 
 exports.createBatch = async (req, res) => {
   try {
@@ -48,6 +49,8 @@ exports.generateInvite = async (req, res) => {
     const { role } = req.body;
     const { id } = req.body;
 
+
+
     if (role !== "trainer") {
       return res.status(403).json({
         success: false,
@@ -55,7 +58,17 @@ exports.generateInvite = async (req, res) => {
       });
     }
 
+    const batch = await Batch.findById(id);
+
+    const batchName=batch.name
+
+
     const inviteToken = `${id}-${Date.now()}`;
+
+    await Notifications.create({
+      title : `Your are Invited to join batch:${batchName}`,
+      batch_id: id,
+    })
 
     return res.status(200).json({
       success: true,
@@ -194,3 +207,26 @@ exports.getTrainerDashboard = async (req, res) => {
     });
   }
 };
+
+exports.getBatchNotifications=async(req,res)=>{
+  try{
+    const {id}=req.params
+    const notifications=await Notifications.find({batch_id:id})
+    return res.status(200).json({
+      success: true,
+      total: notifications.length,
+      data: notifications,
+
+
+  })
+}
+  catch(error){
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch dashboard data",
+      error: error.message,
+    });
+
+  }
+
+}
