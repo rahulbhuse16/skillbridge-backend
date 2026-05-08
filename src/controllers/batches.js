@@ -231,7 +231,7 @@ exports.getBatchNotifications = async (req, res) => {
 
 }
 
-exports.getUserbatch = async () => {
+exports.getUserbatch = async (req,res) => {
 
   try {
 
