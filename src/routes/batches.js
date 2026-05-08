@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBatch,generateInvite,getBatches,getBatchNotifications,getTrainerDashboard,joinBatch } from "../controllers/batches.js";
+import { createBatch,generateInvite,getBatches,getBatchNotifications,getTrainerDashboard,getUserbatch,joinBatch } from "../controllers/batches.js";
 import { batchSummary } from "../controllers/programme.js";
 export const batchRouter=Router()
 
@@ -10,5 +10,7 @@ batchRouter.get('/batches/:id/summary',batchSummary)
 batchRouter.get('/batches/:id/',getBatches)
 batchRouter.get("/:trainer_id/dashboard", getTrainerDashboard);
 batchRouter.get("/:id/notifications", getBatchNotifications);
+batchRouter.get("/:id/student-batch", getUserbatch);
+
 
 

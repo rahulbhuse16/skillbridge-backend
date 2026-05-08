@@ -60,13 +60,13 @@ exports.generateInvite = async (req, res) => {
 
     const batch = await Batch.findById(id);
 
-    const batchName=batch.name
+    const batchName = batch.name
 
 
     const inviteToken = `${id}-${Date.now()}`;
 
     await Notifications.create({
-      title : `Your are Invited to join batch:${batchName}`,
+      title: `Your are Invited to join batch:${batchName}`,
       batch_id: id,
     })
 
@@ -85,7 +85,7 @@ exports.generateInvite = async (req, res) => {
 
 exports.joinBatch = async (req, res) => {
   try {
-    const { student_id, role,id } = req.body;
+    const { student_id, role, id } = req.body;
 
     if (role !== "student") {
       return res.status(403).json({
@@ -182,8 +182,8 @@ exports.getTrainerDashboard = async (req, res) => {
     const attendancePercentage =
       attendance.length > 0
         ? Math.round(
-            (presentCount / attendance.length) * 100
-          )
+          (presentCount / attendance.length) * 100
+        )
         : 0;
 
     const recentSessions = sessions.slice(0, 5);
@@ -208,24 +208,57 @@ exports.getTrainerDashboard = async (req, res) => {
   }
 };
 
-exports.getBatchNotifications=async(req,res)=>{
-  try{
-    const {id}=req.params
-    const notifications=await Notifications.find({batch_id:id})
+exports.getBatchNotifications = async (req, res) => {
+  try {
+    const { id } = req.params
+    const notifications = await Notifications.find({ batch_id: id })
     return res.status(200).json({
       success: true,
       total: notifications.length,
       data: notifications,
 
 
-  })
-}
-  catch(error){
+    })
+  }
+  catch (error) {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch dashboard data",
       error: error.message,
     });
+
+  }
+
+}
+
+exports.getUserbatch = async () => {
+
+  try {
+
+    const { id } = req.params
+    const batch = await BatchStudents.findOne({ student_id: id })
+
+    if(!batch){
+      return res.status(404).json({
+        message : "Student not registered for batch"
+
+      })
+    }
+    return res.status(200).json({
+      success: true,
+      total: batch.length,
+      data: batch,
+
+
+    })
+
+
+  }
+  catch (error) {
+    return res.status(500).json({
+      message : error?.message,
+      success:false
+    })
 
   }
 
